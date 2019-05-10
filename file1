@@ -2,4 +2,9 @@ hello
 good morning 
 how are u
 good afternoon
+<<<<<<< HEAD
 good evening
+=======
+hai
+hello
+>>>>>>> c155b8ce8ce992bf7188e8382de9eda067146fab
