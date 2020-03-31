@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set +x
+
+if [ -f "db/database.sql" ]; then
+
+export DB_HOST=52.168.168.239
+export DB_NAME=yogatraining_db_stage
+export DB_PORT=3306
+
+mysqldump -h ${DB_HOST} -u ${DB_USERNAME} -p"${DB_PASSWORD}" ${DB_NAME} > db/dbdump-staging-${DB_NAME}-${PIPELINE_VERSION}.sql
+
+git add db/dbdump-staging-${DB_NAME}-${PIPELINE_VERSION}.sql
+
+git commit -m "adding file db/dbdump-staging-${DB_NAME}-${PIPELINE_VERSION}.sql"
+
+mysql -h ${DB_HOST} -u $DB_USERNAME -p$DB_PASSWORD -e "drop database ${DB_NAME};";
+mysql -h ${DB_HOST} -u $DB_USERNAME -p$DB_PASSWORD -e "create database ${DB_NAME};";
+printf "\033[32m"
+mysql -v -h ${DB_HOST} -u $DB_USERNAME -p$DB_PASSWORD ${DB_NAME} < db/database.sql 
+printf "\033[0m"
+
+################################
+printf "\033[43m"
+printf "\033[31m"
+
+DB_PASSWORD="${DB_PASSWORD//\&/\\&}"
+
+/var/lib/jenkins/ncplscripts/change-db-config.sh
+printf "\033[0m"
+
+else
+
+echo "database not found"
+
+fi
